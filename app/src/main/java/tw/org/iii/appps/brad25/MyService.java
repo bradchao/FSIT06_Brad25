@@ -5,8 +5,12 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.IBinder;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class MyService extends Service {
     private MediaPlayer mediaPlayer;
+    private Timer timer;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -20,6 +24,8 @@ public class MyService extends Service {
     public void onCreate() {
         super.onCreate();
 
+        timer = new Timer();
+        timer.schedule(new MyTask(), 0, 200);
         mediaPlayer = MediaPlayer.create(this, R.raw.brad);
         int len = mediaPlayer.getDuration();
         sendBroadcast(new Intent("ACT_LEN").putExtra("len",len));
@@ -33,10 +39,25 @@ public class MyService extends Service {
                 mediaPlayer.start();
             }else if (act.equals("pause") && mediaPlayer!=null && mediaPlayer.isPlaying()){
                 mediaPlayer.pause();
+            }else if (act.equals("seekto") && mediaPlayer != null){
+                int seekto = intent.getIntExtra("seekto", -1);
+                if (seekto >= 0) {
+                    mediaPlayer.seekTo(seekto);
+                }
             }
         }
 
         return super.onStartCommand(intent, flags, startId);
+    }
+
+    private class MyTask extends TimerTask {
+        @Override
+        public void run() {
+            if (mediaPlayer != null && mediaPlayer.isPlaying()){
+                int now = mediaPlayer.getCurrentPosition();
+                sendBroadcast(new Intent("ACT_NOW").putExtra("now",now));
+            }
+        }
     }
 
     @Override
@@ -46,6 +67,11 @@ public class MyService extends Service {
                 mediaPlayer.stop();
             }
             mediaPlayer.release();
+        }
+        if (timer != null){
+            timer.cancel();
+            timer.purge();
+            timer = null;
         }
 
         super.onDestroy();

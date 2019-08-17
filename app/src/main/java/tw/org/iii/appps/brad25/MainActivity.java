@@ -9,14 +9,40 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.SeekBar;
 
 public class MainActivity extends AppCompatActivity {
     private MyReceiver receiver;
+    private SeekBar seekBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        seekBar = findViewById(R.id.seekBar);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean fromUser) {
+                if (fromUser){
+                    Log.v("brad", "fromUser");
+                    Intent intent = new Intent(MainActivity.this, MyService.class);
+                    intent.putExtra("seekto", i);
+                    intent.putExtra("act", "seekto");
+                    startService(intent);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 
         receiver = new MyReceiver();
         IntentFilter filter = new IntentFilter();
@@ -54,8 +80,10 @@ public class MainActivity extends AppCompatActivity {
             if (act.equals("ACT_LEN")){
                 int len = intent.getIntExtra("len", -1);
                 Log.v("brad", "len:" + len);
+                seekBar.setMax(len);
             }else if (act.equals("ACT_NOW")){
-
+                int now = intent.getIntExtra("now", -1);
+                seekBar.setProgress(now);
             }
         }
     }
