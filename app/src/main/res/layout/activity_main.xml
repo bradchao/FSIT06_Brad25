@@ -12,8 +12,8 @@
         android:id="@+id/seekBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:progress="50"
-        android:max="100"
+        android:layout_marginVertical="20dp"
+        android:paddingVertical="10dp"
         />
 
     <Button

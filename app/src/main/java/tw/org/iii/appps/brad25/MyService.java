@@ -21,6 +21,8 @@ public class MyService extends Service {
         super.onCreate();
 
         mediaPlayer = MediaPlayer.create(this, R.raw.brad);
+        int len = mediaPlayer.getDuration();
+        sendBroadcast(new Intent("ACT_LEN").putExtra("len",len));
     }
 
     @Override
